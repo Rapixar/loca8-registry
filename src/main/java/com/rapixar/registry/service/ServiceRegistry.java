@@ -1,4 +1,4 @@
-package io.interviewready.registry.service;
+package com.rapixar.registry.service;
 
 import com.rapixar.registry.database.DBClient;
 import com.rapixar.registry.models.Registration;

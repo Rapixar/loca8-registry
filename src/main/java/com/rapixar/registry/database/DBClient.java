@@ -1,7 +1,7 @@
 package com.rapixar.registry.database;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
-//import io.interviewready.registry.models.ServiceNode;
+import com.rapixar.registry.models.ServiceNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ public class DBClient {
             insertNode.setString(1, node.getId());
             insertNode.setString(2, node.getIpAddress());
             insertNode.setString(3, node.getServiceName());
-            insertNode.setString(4, node.getPort());
+            insertNode.setInt(4, node.getPort());
             return CompletableFuture.runAsync(() -> {
                 try {
                     insertNode.execute();

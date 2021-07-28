@@ -17,7 +17,7 @@ public class ServiceRegistry {
         this.dbClient = dbClient;
     }
 
-    @GetMapping("/getHandlers")
+    @GetMapping("/getNodes")
     public List<ServiceNode> getHandlers(@RequestParam final String methodName) {
         return dbClient.getServiceNodes(methodName).join();
     }

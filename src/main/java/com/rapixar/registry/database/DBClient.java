@@ -1,7 +1,7 @@
-package com.rapixar.database;
+package com.rapixar.registry.database;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
-//import io.interviewready.registry.models.ServiceNode;
+import com.rapixar.registry.models.ServiceNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class DBClient {
     private final Logger logger;
 
     @Autowired
-    public DBClient throws SQLException {
+    public DBClient() throws SQLException {
         MysqlDataSource dataSource = new MysqlDataSource();
         dataSource.setURL("jdbc:mysql://localhost:5432/registry");
         dataSource.setUser("rapixar");
@@ -32,11 +32,12 @@ public class DBClient {
 
     public CompletableFuture<Void> addNode(final ServiceNode node) {
         try {
-            final PreparedStatement insertNode = connection.prepareStatement("insert into node(id,ip_address,service_name,port) values(?,?,?,?");
+            final PreparedStatement insertNode = connection
+                    .prepareStatement("insert into node(id,ip_address,service_name,port) values(?,?,?,?");
             insertNode.setString(1, node.getId());
             insertNode.setString(2, node.getIpAddress());
             insertNode.setString(3, node.getServiceName());
-            insertNode.setString(4, node.getPort());
+            insertNode.setInt(4, node.getPort());
             return CompletableFuture.runAsync(() -> {
                 try {
                     insertNode.execute();
@@ -77,7 +78,8 @@ public class DBClient {
 
     public CompletableFuture<List<ServiceNode>> getServiceNodes(final String methodName) {
         try {
-            final PreparedStatement getServiceNodes = connection.prepareStatement("select * from node where service_name = (select service_name from registration where method_name = ?)");
+            final PreparedStatement getServiceNodes = connection.prepareStatement(
+                    "select * from node where service_name = (select service_name from registration where method_name = ?)");
             getServiceNodes.setString(1, methodName);
             return CompletableFuture.supplyAsync(() -> {
                 final ResultSet rs;
@@ -85,7 +87,8 @@ public class DBClient {
                     rs = getServiceNodes.executeQuery();
                     final List<ServiceNode> serviceNodes = new ArrayList<>();
                     while (rs.next()) {
-                        serviceNodes.add(new ServiceNode(rs.getString(1), rs.getString(2), rs.getString(3), rs.getInt(4)));
+                        serviceNodes
+                                .add(new ServiceNode(rs.getString(1), rs.getString(2), rs.getString(3), rs.getInt(4)));
                     }
                     return serviceNodes;
                 } catch (SQLException throwable) {
@@ -118,7 +121,8 @@ public class DBClient {
 
     public CompletableFuture<Void> register(final String serviceName, final String[] methodNames) {
         try {
-            final PreparedStatement registerService = connection.prepareStatement("insert ignore into registration(method_name,service_name) values (?,?)");
+            final PreparedStatement registerService = connection
+                    .prepareStatement("insert ignore into registration(method_name,service_name) values (?,?)");
             return CompletableFuture.runAsync(() -> {
                 try {
                     for (final String methodName : methodNames) {
